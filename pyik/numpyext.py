@@ -1569,8 +1569,8 @@ def LikelihoodRatioSignificance(LLnull, LLalt, ndof=1):
     >>> data = data.T
     >>> for row in xrange(len(data)): gauss[row] = multivariate_gaussian(data[row], mu, cov)
     >>> LLnull = np.sum(np.log(gauss))
-    >>> LikelihoodRatioSignificance(LLnull,LLalt)
-    0.1500235565909552
+    >>> round(LikelihoodRatioSignificance(LLnull,LLalt), 4)
+    0.15
 
     Authors
     -------

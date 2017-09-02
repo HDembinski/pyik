@@ -316,8 +316,8 @@ def uncertainty_ellipse(par, cov, cfactor=1.51, axes=None, **kwargs):
     To compute the coverage factor with scipy, do
     >>> from scipy.stats import chi2
     >>> p_coverage = 0.68 # desired coverage
-    >>> chi2(2).ppf(p_coverage) ** 0.5
-    1.5095921854516634
+    >>> round(chi2(2).ppf(p_coverage) ** 0.5, 4)
+    1.5096
     """
 
     from math import atan2, pi, sqrt
