@@ -26,7 +26,7 @@ install:
 
 script:
   - dpkg -L libroot-bindings-python5.34
-  - export PYTHONPATH=/usr/share/python-support/root:${PYTHONPATH}
+  - export PYTHONPATH=/usr/lib/x86_64-linux-gnu/root5.34:${PYTHONPATH}
   - python2.7 -c "import ROOT"
   - for test in tests/*.py; do python ${test}; done
 
