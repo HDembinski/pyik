@@ -2,6 +2,9 @@ sudo: false
 
 language: python
 
+python:
+  - "2.7"
+
 branches:
     only:
       - master
@@ -11,7 +14,7 @@ git:
   depth: 1
 
 install:
-  - pip install numpy matplotlib
+  - pip install -r requirements.txt
 
 script:
   - for test in tests/test_*.py; do python ${test}; done
