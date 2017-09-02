@@ -1,5 +1,7 @@
 # PyIK - The Python Instrument Kit
 
+[![Build Status](https://travis-ci.org/HDembinski/pyik.svg?branch=master)](https://travis-ci.org/HDembinski/pyik)
+
 This package contains a set of tools that extend and simplify common analysis tasks in particle physics. The future aim of this package is nothing less than to provide a working alternative to ROOT.
 
 The tools are grouped by topic into several modules which are listed below. Most of them depend on external modules which are not shipped with Python. The respective dependencies are also listed.
