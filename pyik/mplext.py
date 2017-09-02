@@ -533,28 +533,3 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
     plt.xlim(min(xcens - 2 * xhws), max(xcens + 2 * xhws))
 
     return xcens, xhws, means, stds, meds, mads, ns
-
-
-class EngineeringFormatter(MPLFormatter):
-    """
-    Formats axis locations using engineering notation, e.g. 1000 as 1k.
-
-    Author
-    ======
-    Hans Dembinski
-    """
-
-    _eng = {0: "", -1: "m", -2: "u", -3: "n", -4: "p", -5: "f", -6: "a",
-            1: "k", 2: "M", 3: "G", 4: "T", 5: "P", 6: "E"}
-
-    def __call__(self, val, pos=None):
-        val_pos = np.abs(val)
-        if val_pos == 0:
-            s = str(val)
-            d = 0
-        else:
-            x = np.log10(val_pos)
-            d = int(np.floor(x / 3.0))
-            s = str((val / 10. ** (3 * d)))
-        s = s.rstrip("0").rstrip(".")
-        return s + _eng[d]
