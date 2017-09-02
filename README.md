@@ -12,9 +12,9 @@ The tools are grouped by topic into several modules which are listed below. Most
 * *locked_shelve*: Functionality to read shelve files and prevent write collisions
 * *misc*: Miscellanious helper functions/classes that cannot be grouped into any of the other submodules
 * *mplext*: Missing plotting tools in matplotlib __Requires matplotlib__
-* *numpyext*: Missing numerical tools in numpy __Requires numpy__
+* *numpyext*: Missing numerical tools in numpy __Requires numpy, scipy__
 * *performance*: Tools to increase performance (e.g. the cached decorator and pmap for easy parallelization)
-* *rootext*: Convert Python to ROOT objects and vice-versa
+* *rootext*: Convert Python to ROOT objects and vice-versa __Requires ROOT__
 * *time_conversion*: Contains tools to convert between UTC and GPS
 
 ## Notes
