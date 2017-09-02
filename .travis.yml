@@ -2,6 +2,11 @@ sudo: false
 
 language: python
 
+cache:
+  pip: true
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps/root
+
 python:
   - "2.7"
 
@@ -10,14 +15,29 @@ branches:
       - master
       - develop
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+
 git:
   depth: 1
 
 install:
   - pip install -r requirements.txt
+  - ROOT_DIR=${TRAVIS_BUILD_DIR}/deps/root
+  - mkdir -p ${ROOT_DIR}
+  - |
+    if [[ -z "$(ls -A ${ROOT_DIR})" ]]; then
+      URL="https://root.cern.ch/download/root_v6.10.02.source.tar.gz"
+      { travis_retry wget --quiet -O - ${URL} | tar --strip-components=1 -xz -C ${ROOT_DIR}_src; } || exit 1
+      (mkdir -p ${ROOT_DIR}_build; cd ${ROOT_DIR}_build && cmake ${ROOT_DIR}_src -DCMAKE_INSTALL_PREFIX=${ROOT_DIR} && make install)
+    fi
+  - export PYTHONPATH=${ROOT_DIR/lib}:${PYTHONPATH}
 
-script:
-  - for test in tests/test_*.py; do python ${test}; done
+script: pytest
 
 notifications:
   email: false
