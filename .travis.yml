@@ -1,0 +1,21 @@
+sudo: false
+
+language: python
+
+branches:
+    only:
+      - master
+      - develop
+
+git:
+  depth: 1
+
+install:
+  - pip install --user numpy
+  - pip install 
+
+script:
+  - for test in tests/test_*.py; do python ${test}; done
+
+notifications:
+  email: false
