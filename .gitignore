@@ -1,1 +1,3 @@
 *.pyc
+tests/cache*
+tests/mycache*
