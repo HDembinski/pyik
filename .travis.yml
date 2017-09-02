@@ -25,7 +25,8 @@ install:
   - mkdir -p ${CMAKE_DIR}
   - |
     if [[ -z "$(ls -A ${CMAKE_DIR})" ]]; then
-      (curl https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C ${CMAKE_DIR})
+      URL="https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz"
+      { travis_retry wget -O - ${URL} | tar -xz --strip-components=1 -C ${CMAKE_DIR}; } || exit 1
     fi
   - ROOT_DIR=${TRAVIS_BUILD_DIR}/deps/root
   - mkdir -p ${ROOT_DIR}
@@ -33,7 +34,7 @@ install:
     if [[ -z "$(ls -A ${ROOT_DIR})" ]]; then
       URL="https://root.cern.ch/download/root_v6.10.02.source.tar.gz"
       mkdir -p ${ROOT_DIR}_build
-      { travis_retry wget --quiet -O - ${URL} | tar --strip-components=1 -xz -C ${ROOT_DIR}; } || exit 1
+      { travis_retry wget -O - ${URL} | tar -xz --strip-components=1 -C ${ROOT_DIR}; } || exit 1
       (cd ${ROOT_DIR}_build && ${CMAKE_DIR}/bin/cmake ${ROOT_DIR} && make install)
     fi
   - export PYTHONPATH=${ROOT_DIR/root/lib}:${PYTHONPATH}
