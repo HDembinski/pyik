@@ -8,7 +8,7 @@ cache:
 addons:
   apt:
     packages:
-      - python-2.7-pyroot
+      - python2.7-pyroot
 
 python:
   - "2.7"
