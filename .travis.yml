@@ -20,7 +20,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - cmake
+      - cmake-3.6
 
 git:
   depth: 1
