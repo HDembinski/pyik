@@ -8,7 +8,8 @@ cache:
 addons:
   apt:
     packages:
-      - python2.7-pyroot
+      - root-system
+      - root-plugin-math-minuit2
 
 python:
   - "2.7"
@@ -25,9 +26,7 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - dpkg -L libroot-bindings-python5.34
   - export PYTHONPATH=/usr/lib/x86_64-linux-gnu/root5.34:${PYTHONPATH}
-  - python2.7 -c "import ROOT"
   - for test in tests/*.py; do python ${test}; done
 
 notifications:
