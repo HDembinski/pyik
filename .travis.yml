@@ -17,5 +17,6 @@ install:
 script:
   - for test in tests/test_*.py; do python ${test}; done
 
+
 notifications:
   email: false
