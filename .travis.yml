@@ -1,6 +1,6 @@
 sudo: false
 
-language: cpp
+language: python
 
 cache:
   pip: true
@@ -10,9 +10,10 @@ addons:
     packages:
       - root-system
       - root-plugin-math-minuit2
+      - python2.7-pyroot
 
 python:
-  - "2.7"
+  - 2.7
 
 branches:
     only:
