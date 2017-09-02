@@ -25,6 +25,7 @@ install:
   - pip install -r requirements.txt
 
 script:
+  - python2.7 -c "import ROOT"
   - for test in tests/*.py; do python ${test}; done
 
 notifications:
