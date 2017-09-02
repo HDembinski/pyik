@@ -558,8 +558,3 @@ class EngineeringFormatter(MPLFormatter):
             s = str((val / 10. ** (3 * d)))
         s = s.rstrip("0").rstrip(".")
         return s + _eng[d]
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

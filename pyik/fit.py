@@ -609,8 +609,3 @@ class ChiSquareFunction(object):
             if do_squeeze:
                 pars, cov = np.squeeze(pars), np.squeeze(cov)
             return pars, cov, chi2, ndof
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

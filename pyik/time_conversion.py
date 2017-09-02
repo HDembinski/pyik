@@ -130,6 +130,11 @@ def mjd(year, month, day, hour=0, minute=0, second=0):
     Notes
     -----
     The formulas are taken from Wikipedia.
+
+    Example
+    -------
+    >>> mjd(2000, 1, 1)
+    51544.0
     """
     a = (14 - month) // 12
     y = year + 4800 - a
@@ -162,13 +167,13 @@ def UTCSecondToLocalDatetime(utcsec, timezone="Europe/Berlin"):
     Adapted from a stackoverflow answer.
 
     To list all available time zones:
-      >>> import pytz
-      >>> pytz.all_timezones
+    >> import pytz
+    >> pytz.all_timezones
 
     To print the returned datetime object in a certain format:
-      >>> from pyik.time_conversion import UTCSecondToLocalDatetime
-      >>> dt = UTCSecondToLocalDatetime(1484314559)
-      >>> dt.strftime("%d/%m/%Y, %H:%M:%S")
+    >> from pyik.time_conversion import UTCSecondToLocalDatetime
+    >> dt = UTCSecondToLocalDatetime(1484314559)
+    >> dt.strftime("%d/%m/%Y, %H:%M:%S")
     """
 
     import pytz
@@ -221,8 +226,3 @@ def DatetimeToGPSSeconds(dt, timezone=None):
         ts = (utc_naive - datetime(1970, 1, 1)).total_seconds()
 
     return int(utc_to_gps(ts))
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

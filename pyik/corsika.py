@@ -5,9 +5,12 @@
 # to note Offline first converts to PDG and only has a few names hard-coded
 # the packages responsible for that in Offline are not included in these CORSIKA files
 # CAVEAT| to view labels correctly need useTex enabled in matplotlibrc
-primary_dic = {1: r'$\gamma$', 2: r'$e^{+}$', 3: r'$e^{-}$', 5: r"$\mu^{+}$", 6: r"$\mu^{-}$",
-               7: r"$\pi^{o}$", 8: r"$\pi^{+}$", 9: r"$\pi^{-}$", 13: "n", 14: "p",
-               402: "He", 703: "Li", 904: "Be", 1105: "B", 1206: "C", 1407: "N",
+primary_dic = {1: r'$\gamma$', 2: r'$e^{+}$', 3: r'$e^{-}$',
+               5: r"$\mu^{+}$", 6: r"$\mu^{-}$",
+               7: r"$\pi^{o}$", 8: r"$\pi^{+}$",
+               9: r"$\pi^{-}$", 13: "n", 14: "p",
+               402: "He", 703: "Li", 904: "Be",
+               1105: "B", 1206: "C", 1407: "N",
                1608: "O", 2814: "Si", 5626: "Fe"}
 
 
@@ -270,9 +273,9 @@ def createShowerInfoLibrary(corsikafilenames, libraryfilename, fixed=False, old=
 
     Examples
     --------
-    >>> from pyik import corsika
-    >>> from glob import glob
-    >>> corsika.createShowerInfoLibrary( glob("/data/pQGSJet/DAT00084*lst"), "mylibrary")
+    >> from pyik import corsika
+    >> from glob import glob
+    >> corsika.createShowerInfoLibrary( glob("/data/pQGSJet/DAT00084*lst"), "mylibrary")
     """
 
     from sys import stdout

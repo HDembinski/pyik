@@ -257,6 +257,7 @@ def centers(x):
     [ 0.5  1.5] [ 0.5  0.5]
     """
 
+    x = np.atleast_1d(x)
     assert len(x) > 1, "Array should have size > 1 to make call to centers() reasonable!"
     hw = 0.5 * (x[1:] - x[:-1])
     return x[:-1] + hw, hw
@@ -746,22 +747,21 @@ class ConvexHull:
 
     Examples
     --------
-    >>> m1 = np.random.normal(size=100)
-    >>> m2 = np.random.normal(scale=0.5, size=100)
-    >>> hull = ConvexHull(m1,m2)
+    >>> m1 = [-0.9, -0.1, -0.0, 0.7, 1.3, 0.4, 0.6, -1.9, 0.2, -1.1]
+    >>> m2 = [ 0.1, 0.7, -0.9, -0.1, -0.5, -0.7, -0.9, -0.2, -0.2, -0.5]
+    >>> hull = ConvexHull(m1, m2)
     >>> points, hull = hull()
-        [  5.78399359e-01,   8.30900177e-01],
-         ...
-        [  3.06578222e-01,   8.34867887e-01]]), <scipy.spatial.qhull.ConvexHull object at 0x7f880d142990>)
-    >>> for simplex in hull.simplices:
-    >>>   plt.plot(points[simplex, 0], points[simplex, 1], 'k--')
+
+    Plot the hull:
+    for simplex in hull.simplices:
+       plt.plot(points[simplex, 0], points[simplex, 1], 'k--')
     """
 
     def __init__(self, x, y, frac=1.0, byprob=True):
         from scipy.stats import gaussian_kde
 
-        self.x = x
-        self.y = y
+        self.x = np.atleast_1d(x)
+        self.y = np.atleast_1d(y)
         self.frac = frac
         self.remove = byprob
 
@@ -1310,7 +1310,7 @@ class FeldmanCousins(object):
         return cxsort[0], cxsort[-1]
 
     def Finitize(self, arr):
-        arr[np.isfinite(arr) is False] = 0.
+        arr[np.isfinite(arr) == False] = 0.0
         return arr
 
     def Boundarize(self, arr):
@@ -1441,38 +1441,35 @@ class multivariate_gaussian_evaluator(object):
     Examples
     --------
     Using coverage
-    >>> m1 = np.random.normal(size=n)
-    >>> m2 = np.random.normal(scale=0.5, size=n)
+    >>> m1 = [-0.9, -0.1, -0.0, 0.7, 1.3, 0.4, 0.6, -1.9, 0.2, -1.1]
+    >>> m2 = [ 0.1, 0.7, -0.9, -0.1, -0.5, -0.7, -0.9, -0.2, -0.2, -0.5]
     >>> mvn = multivariate_gaussian_evaluator([m1, m2], coverage=[0.682])
     >>> mean, length, direct, isin = mvn()
 
+    Draw the ellipse
     >>> from matplotlib.patches import Ellipse
-    >>> ax = plt.subplot(111, aspect='equal')
-    >>> ell2 = Ellipse(xy=(mean[0], mean[1]), width=length[0]*2, height=length[1]*2,
-                      angle=np.degrees(np.arctan2(*direct[:,0][::-1])))
-    >>> ell2.set_facecolor('none')
-    >>> ax.add_artist(ell2)
-    >>> plt.show()
+    >>> ell2 = Ellipse(xy=(mean[0], mean[1]), width=length[0]*2, height=length[1]*2, angle=np.degrees(np.arctan2(*direct[:,0][::-1])))
+    
+    You need to manually add the Ellipse to axes 'ax': ax.add_artist(ell2)
 
     Without coverage
-    >>> m1 = np.random.normal(size=n)
-    >>> m2 = np.random.normal(scale=0.5, size=n)
-    >>> xmin = self.m1.min()
-    >>> xmax = self.m1.max()
-    >>> ymin = self.m2.min()
-    >>> ymax = self.m2.max()
+    >>> m1 = [-0.9, -0.1, -0.0, 0.7, 1.3, 0.4, 0.6, -1.9, 0.2, -1.1]
+    >>> m2 = [ 0.1, 0.7, -0.9, -0.1, -0.5, -0.7, -0.9, -0.2, -0.2, -0.5]
+    >>> xmin = np.min(m1)
+    >>> xmax = np.max(m1)
+    >>> ymin = np.min(m2)
+    >>> ymax = np.max(m2)
     >>> X, Y = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
     >>> positions = np.vstack([X.ravel(), Y.ravel()])
 
-    >>> mvn = multivariate_gaussian_evaluator([m1, m2], points = positions)
-    >>> val = mvn()
-    >>> Z = np.reshape(val.T, X.shape)
-    >>> plt.imshow(np.rot(Z,2), cmap=plt.cm.gist_earth_r, extent=[xmin, xmax, ymin, ymax])
-    >>> plt.plot(self.x, self.y, 'k.', markersize=2)
-    >>> plt.xlim([xmin, xmax])
-    >>> plt.ylim([ymin, ymax])
-    >>> plt.show()
-    >>> plt.clf()
+    Draw as color mesh
+    >> mvn = multivariate_gaussian_evaluator([m1, m2], points = positions)
+    >> val = mvn()
+    >> Z = np.reshape(val.T, X.shape)
+    >> plt.imshow(np.rot(Z,2), cmap=plt.cm.gist_earth_r, extent=[xmin, xmax, ymin, ymax])
+    >> plt.plot(self.x, self.y, 'k.', markersize=2)
+    >> plt.xlim([xmin, xmax])
+    >> plt.ylim([ymin, ymax])
     """
 
     def __init__(self, data, points=None, wts=None, coverage=None, quantiles=True):
@@ -1559,23 +1556,21 @@ def LikelihoodRatioSignificance(LLnull, LLalt, ndof=1):
     >>> from scipy.stats import gaussian_kde
     >>> import numpy as np
     >>> from pyik.numpyext import multivariate_gaussian, LikelihoodRatioSignificance
-    >>> m1 = np.random.normal(size=2000)
-    >>> m2 = np.random.normal(scale=0.5, size=2000)
+    >>> m1 = [-0.9, -0.1, -0.0, 0.7, 1.3, 0.4, 0.6, -1.9, 0.2, -1.1]
+    >>> m2 = [ 0.1, 0.7, -0.9, -0.1, -0.5, -0.7, -0.9, -0.2, -0.2, -0.5]
     >>> data = np.array([m1, m2])
     >>> kernel = gaussian_kde(data)
     >>> kde_values = kernel(data)
     >>> LLalt = np.sum(np.log(kde_values))
     >>>
-    >>>
     >>> cov = np.cov(data)
     >>> mu = np.mean(data, axis=1)
     >>> gauss = [0]*len(data[0])
     >>> data = data.T
-    >>> for row in xrange(len(data)):
-    >>>   gauss[row] = multivariate_gaussian(data[row], mu, cov)
+    >>> for row in xrange(len(data)): gauss[row] = multivariate_gaussian(data[row], mu, cov)
     >>> LLnull = np.sum(np.log(gauss))
     >>> LikelihoodRatioSignificance(LLnull,LLalt)
-    '4.4847501351827167e-21'
+    0.1500235565909552
 
     Authors
     -------
@@ -1591,8 +1586,3 @@ def LikelihoodRatioSignificance(LLnull, LLalt, ndof=1):
 
     sf = chi2.sf(d, ndof)
     return sf
-
-
-# if __name__ == "__main__":
-    # import doctest
-    # doctest.testmod()

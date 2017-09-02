@@ -95,7 +95,7 @@ def ToNumpy(x):
     >>> a[0] = 1; a[1] = 2; a[2] = 3
     >>> na = ToNumpy(a)
     >>> print type(na), na
-    <type 'numpy.ndarray'> [ 1.  2.  3.]
+    <class 'pyik.rootext.NDArray'> [ 1.  2.  3.]
     """
 
     if isinstance(x, str):
@@ -213,8 +213,3 @@ def ToNumpy(x):
     else:
         raise ValueError(
             "Cannot handle type %s yet, please have a look at pyik.rootext and implement it" % (type(x)))
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

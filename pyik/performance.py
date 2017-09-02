@@ -2,22 +2,11 @@
 import numpy as np
 
 
-def FuncWorker(f, q_in, q_out):
-    """Used by pmap: Worker that gets input from queue, executes function and writes back the output."""
-    while True:
-        i, x = q_in.get()
-        if i is None:
-            break
-        x = np.atleast_1d(x)
-        res = []
-        for ix in x:
-            res.append(f(ix))
-        q_out.put((i, res))
-
-
 def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
     """
     Parallelized version of map. It calls function on arguments using numprocesses threads.
+
+    Also try the numexpr package, which is easy to use and may give you better performance.
 
     Parameters
     ----------
@@ -32,8 +21,7 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
       By default this is set to the number of processes.
     async : bool, optional (default = False)
       If async is true, the results can have arbitrary order. This can improve
-      the speed of execution, but can be unexpected and is thus turned off by
-      default.
+      the speed of execution.
 
     Returns
     -------
@@ -59,7 +47,7 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
     --------
     >>> def f(x): return x*x
     >>> pmap(f, (1,2,3))
-    [1,4,9]
+    [1, 4, 9]
 
     See Also
     --------
@@ -85,7 +73,18 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
     q_in = mp.Queue(1)
     q_out = mp.Queue()
 
-    proc = [mp.Process(target=FuncWorker, args=(function, q_in, q_out))
+    def worker(f, q_in, q_out):
+        while True:
+            i, x = q_in.get()
+            if i is None:
+                break
+            x = np.atleast_1d(x)
+            res = []
+            for ix in x:
+                res.append(f(ix))
+            q_out.put((i, res))
+
+    proc = [mp.Process(target=worker, args=(function, q_in, q_out))
             for _ in range(numprocesses)]
 
     for p in proc:
@@ -158,16 +157,16 @@ def cached(keepOpen=False, lockCacheFile=False, trackCode=True):
 
     >>> @cached
     ... def slow_function1(a):
-    ...   return a
+    ...     return a
     >>> @cached
     ... def slow_function2(b):
-    ...   return b*b
+    ...     return b*b
     >>> slow_function1(2)
-        2
+    2
     >>> slow_function2(2)
-        4
+    4
     >>> slow_function1(3)
-        3
+    3
 
     Any calls to slow_function1 and slow_function2 are transparently cached
     from now on.
@@ -244,18 +243,18 @@ def cached_at(cacheFileName, keepOpen=False, lockCacheFile=False, trackCode=True
     --------
     In order to make a cached version of a slow function, do
 
-    >>> @cached_at("/tmp/mycache1.tmp")
+    >>> @cached_at("mycache1.tmp")
     ... def slow_function1(a):
     ...   return a
-    >>> @cached_at("/tmp/mycache2.tmp")
+    >>> @cached_at("mycache2.tmp")
     ... def slow_function2(b):
     ...   return b*b
     >>> slow_function1(2)
-        2
+    2
     >>> slow_function2(2)
-        4
+    4
     >>> slow_function1(3)
-        3
+    3
 
     See the decorator "cached" in this module for more information.
 
@@ -378,9 +377,3 @@ def memoized(function):
         return output
 
     return decorated_function
-
-
-# don't do doctest, it does not work with multiprocessing
-# if __name__ == "__main__":
-    # import doctest
-    # doctest.testmod()

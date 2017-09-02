@@ -23,7 +23,3 @@ def cprint(pstr, cstr="white"):
     except:
         print(pstr)
 
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
