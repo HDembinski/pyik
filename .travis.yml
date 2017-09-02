@@ -4,9 +4,11 @@ language: python
 
 cache:
   pip: true
-  directories:
-    - ${TRAVIS_BUILD_DIR}/deps/root
-    - ${TRAVIS_BUILD_DIR}/deps/cmake
+
+addons:
+  apt:
+    packages:
+      - python-2.7-pyroot
 
 python:
   - "2.7"
@@ -21,24 +23,6 @@ git:
 
 install:
   - pip install -r requirements.txt
-  - CMAKE_DIR=${TRAVIS_BUILD_DIR}/deps/cmake
-  - mkdir -p ${CMAKE_DIR}
-  - |
-    if [[ -z "$(ls -A ${CMAKE_DIR})" ]]; then
-      URL="https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz"
-      { travis_retry wget -O - ${URL} | tar -xz --strip-components=1 -C ${CMAKE_DIR}; } || exit 1
-    fi
-  - ROOT_DIR=${TRAVIS_BUILD_DIR}/deps/root
-  - mkdir -p ${ROOT_DIR}
-  - |
-    if [[ -z "$(ls -A ${ROOT_DIR})" ]]; then
-      URL="https://root.cern.ch/download/root_v6.10.02.source.tar.gz"
-      mkdir -p ${ROOT_DIR}_build
-      { travis_retry wget -O - ${URL} | tar -xz --strip-components=1 -C ${ROOT_DIR}; } || exit 1
-      (cd ${ROOT_DIR}_build && ${CMAKE_DIR}/bin/cmake ${ROOT_DIR} && make install)
-    fi
-  - export PYTHONPATH=${ROOT_DIR/root/lib}:${PYTHONPATH}
-
 
 script: pytest
 
