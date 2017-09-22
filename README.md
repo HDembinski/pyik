@@ -26,10 +26,10 @@ to copy-paste from.
 
 ## Authors
 
-Ariel Bridgeman
-Hans Dembinski (maintainer)
-Benjamin Fuchs
-Detlef Maurel
-Daniela Mockler
-Alexander Schulz
-Felix Werner
+* Ariel Bridgeman
+* Hans Dembinski (maintainer)
+* Benjamin Fuchs
+* Detlef Maurel
+* Daniela Mockler
+* Alexander Schulz
+* Felix Werner
