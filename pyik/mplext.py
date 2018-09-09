@@ -106,7 +106,7 @@ def plot_hist(xedges, ws, axes=None, **kwargs):
     xy[0][0] = xedges[0]
     xy[0][-1] = xedges[-1]
 
-    for i in xrange(m):
+    for i in range(m):
         xy[0][1 + 2 * i] = xedges[i]
         xy[1][1 + 2 * i] = ws[i]
         xy[0][1 + 2 * i + 1] = xedges[i + 1]
@@ -169,7 +169,7 @@ def plot_boxerrors(xedges, ys, yes, axes=None, **kwargs):
     n = len(ys)
     isAsymmetric = len(yes.shape) == 2
     rs = []
-    for i in xrange(n):
+    for i in range(n):
         x0 = xedges[i]
         y0 = ys[i] - yes[i][0] if isAsymmetric else ys[i] - yes[i]
         xw = xedges[i + 1] - xedges[i]

@@ -14,6 +14,7 @@ addons:
 
 python:
   - 2.7
+  - 3.4
 
 branches:
     only:
@@ -28,7 +29,7 @@ install:
 
 script:
   - export PYTHONPATH=/usr/lib/x86_64-linux-gnu/root5.34:${PYTHONPATH}
-  - for test in tests/*.py; do python ${test}; done
+  - pytest --doctest-modules pyik
 
 notifications:
   email: false

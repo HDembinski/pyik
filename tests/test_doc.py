@@ -26,10 +26,18 @@ def load_tests(loader, tests, ignore):
     except:
         have_nlopt = False
 
+    try:
+        import ROOT
+        have_root = True
+    except:
+        have_root = False
+
     sys.path = [root_dir] + sys.path
     for path in module_paths:
         name = os.path.basename(path)[:-3]
         if name == "fit" and not have_nlopt:
+            continue
+        if name == "rootext" and not have_root:
             continue
         m = importlib.import_module("pyik." + name)
         suite = doctest.DocTestSuite(module=m)

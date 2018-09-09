@@ -69,13 +69,13 @@ def rebin(factor, w, edges=None, axis=0):
     shape = np.array(w.shape)
     shape[axis] = n
     w2 = np.zeros(shape, dtype=w.dtype)
-    for i in xrange(factor):
+    for i in range(factor):
         mask = [slice(x) for x in shape]
         mask[axis] = slice(i, nbin, factor)
         w2 += w[mask]
 
     if edges is not None:
-        edges2 = [edges[factor * i] for i in xrange(n)] + [edges[-1]]
+        edges2 = [edges[factor * i] for i in range(n)] + [edges[-1]]
         return w2, edges2
     else:
         return w2
@@ -121,7 +121,7 @@ def bin(x, y, bins=10, range=None):
         bins = len(xedges) - 1
 
     binnedys = []
-    for i in xrange(bins):
+    for i in range(bins):
 
         if i == bins - 1:
             binnedys.append(ys[(xedges[i] <= xs) & (xs <= xedges[i + 1])])
@@ -171,7 +171,7 @@ def profile(x, y, bins=10, range=None, sigma_cut=None):
     --------
     >>> yavg,ystd,n,xedge = profile(np.array([0.,1.,2.,3.]), np.array([0.,1.,2.,3.]), 2)
     >>> print yavg, ystd, n, xedge
-    [ 0.5  2.5] [ 0.5  0.5] [2 2] [ 0.   1.5  3. ]
+    [0.5 2.5] [0.5 0.5] [2 2] [0.  1.5 3. ]
     """
 
     y = np.asfarray(np.atleast_1d(y))
@@ -195,7 +195,7 @@ def profile(x, y, bins=10, range=None, sigma_cut=None):
         # reject outliers in calculation of avg, std
         ysum = np.zeros(nbins)
         yysum = np.zeros(nbins)
-        for i in xrange(nbins):
+        for i in range(nbins):
             ymed = np.median(ybin[i])
             ymad = mad(ybin[i])
             for y in ybin[i]:
@@ -252,9 +252,9 @@ def centers(x):
 
     Examples
     --------
-    >>> c,hw = centers([0.0,1.0,2.0])
+    >>> c,hw = centers([0.0, 1.0, 2.0])
     >>> print c, hw
-    [ 0.5  1.5] [ 0.5  0.5]
+    [0.5 1.5] [0.5 0.5]
     """
 
     x = np.atleast_1d(x)
@@ -300,9 +300,9 @@ def derivative(f, x, step=None, order=1):
     >>> "%.3g" % derivative(f, 1.0, order=2)
     '10'
     >>> derivative(f, np.ones(2))
-    array([ 8.,  8.])
+    array([8., 8.])
     >>> derivative(f, np.ones(2), order=2)
-    array([ 10.,  10.])
+    array([10., 10.])
 
     Notes
     -----
@@ -317,7 +317,7 @@ def derivative(f, x, step=None, order=1):
     h0 = h = eps ** 0.33 if order == 1 else eps ** 0.25
 
     userStep = step is not None
-    for i in xrange(10):
+    for i in range(10):
         dx = step if userStep else (h * x if np.all(x) else h)
         tmp = x + dx
         dx = tmp - x
@@ -383,9 +383,9 @@ def derivativeND(f, xs, step=1e-8):
     ...     return xs**2 + ys**2
     ...
     >>> derivativeND(f, [[0., 0.], [1., 0.], [0., 1.]])
-    array([[ 0.        ,  0.        ],
-           [ 1.99999999,  0.        ],
-           [ 0.        ,  1.99999999]])
+    array([[0.        , 0.        ],
+           [1.99999999, 0.        ],
+           [0.        , 1.99999999]])
     """
     xs = np.atleast_2d(xs)
 
@@ -420,11 +420,11 @@ def jacobian(f, x, steps=None):
     --------
     >>> def f(v): return 0.5*np.dot(v,v)
     >>> jacobian(f,np.ones(2))
-    array([[ 1.,  1.]])
+    array([[1., 1.]])
     >>> def f(v): return np.dot(v,v)*v
     >>> jacobian(f,np.ones(2))
-    array([[ 4.,  2.],
-           [ 2.,  4.]])
+    array([[4., 2.],
+           [2., 4.]])
     """
 
     nx = len(x)
@@ -437,14 +437,14 @@ def jacobian(f, x, steps=None):
 
     e = np.zeros(nx)
 
-    for ix in xrange(nx):
+    for ix in range(nx):
         e *= 0
         e[ix] = 1
 
         der = derivative(lambda z: f(x + z * e), 0,
                          step=None if steps is None else steps[ix])
 
-        for iy in xrange(ny):
+        for iy in range(ny):
             jacobi[iy, ix] = der[iy] if ny > 1 else der
 
     return jacobi
@@ -474,8 +474,8 @@ def hessian(f, x, steps):
     n = len(x)
     hesse = np.empty((n, n))
 
-    for i in xrange(n):
-        for j in xrange(i, n):
+    for i in range(n):
+        for j in range(i, n):
             xpp = xx.copy()
             xpp[i] += steps[i]
             xpp[j] += steps[j]
@@ -536,13 +536,13 @@ def propagate_covariance(f, x, cov):
     '16'
     >>> def f(r):return 2*r
     >>> propagate_covariance(f,v,cov)
-    array([[ 4.,  4.],
-           [ 4.,  4.]])
+    array([[4., 4.],
+           [4., 4.]])
     """
 
     ncol = len(x)
     dx = np.empty(ncol)
-    for icol in xrange(ncol):
+    for icol in range(ncol):
         dx[icol] = (np.sqrt(cov[icol][icol]) if cov[icol][icol] > 0.0 else 1.0) * 1e-3
 
     jacobi = jacobian(f, x, dx)
@@ -698,7 +698,7 @@ def mad(a, weights=None, axis=0):
     --------
     >>> a = [1.,0.,5.,4.,2.,3.,1e99]
     >>> mad(a)
-    2.9652044370112041
+    2.965204437011204
     """
 
     const = 1.482602218505602  # 1.0/inverse_cdf(3/4) of normal distribution
@@ -778,7 +778,7 @@ class ConvexHull:
     def removal(self, pos, bound):
         x = np.array([p[0] for p in pos])
         y = np.array([p[1] for p in pos])
-        for b in xrange(len(bound)):
+        for b in range(len(bound)):
             px = np.where(x == bound[b][0])
             py = np.where(y == bound[b][1])
             if px == py:
@@ -856,7 +856,7 @@ def bootstrap(function, x, r=1000):
     n = np.alen(x)
     xx = np.array(x)
     iB = np.array(np.random.permutation(n * r) % n)
-    xbGen = (xx[iB[ir * n:(ir + 1) * n]] for ir in xrange(r))
+    xbGen = (xx[iB[ir * n:(ir + 1) * n]] for ir in range(r))
     ybs = map(function, xbGen)
     return np.array(ybs)
 
@@ -1129,9 +1129,9 @@ class FeldmanCousins(object):
     -------
     >>> fc=FeldmanCousins(0.95)
     >>> fc.FCLimits(0.)
-    (0.0, 3.0951547577378871)
+    (0.0, 3.095154757737887)
     >>> fc.FCLimits(1.)
-    (0.055002750137506877, 5.1452572628631428)
+    (0.05500275013750688, 5.145257262863143)
     """
 
     def __init__(self, cl, nbg=0., murange=None, xvrange=None, mustep=0.005):
@@ -1507,7 +1507,7 @@ class multivariate_gaussian_evaluator(object):
         points = self.points.copy()
         prob = [0] * len(points[0])
         pos = points.T
-        for i in xrange(len(pos)):
+        for i in range(len(pos)):
             prob[i] = multivariate_gaussian(pos[i], self.mean, self.cov)
         return np.array(prob)
 
@@ -1525,7 +1525,7 @@ class multivariate_gaussian_evaluator(object):
         w, u = np.linalg.eig(self.cov.copy())
 
         isin = [1] * len(points)
-        for p in xrange(len(points)):
+        for p in range(len(points)):
             x = np.dot(u.T, points[p] - self.mean.copy()) / np.sqrt(w)
             isin[p] = int(np.sum(x * x) <=
                           chi2(len(self.mean.copy())).ppf(self.coverage))
@@ -1567,7 +1567,7 @@ def LikelihoodRatioSignificance(LLnull, LLalt, ndof=1):
     >>> mu = np.mean(data, axis=1)
     >>> gauss = [0]*len(data[0])
     >>> data = data.T
-    >>> for row in xrange(len(data)): gauss[row] = multivariate_gaussian(data[row], mu, cov)
+    >>> for row in range(len(data)): gauss[row] = multivariate_gaussian(data[row], mu, cov)
     >>> LLnull = np.sum(np.log(gauss))
     >>> round(LikelihoodRatioSignificance(LLnull,LLalt), 4)
     0.15
