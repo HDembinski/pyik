@@ -170,7 +170,7 @@ def profile(x, y, bins=10, range=None, sigma_cut=None):
     Examples
     --------
     >>> yavg,ystd,n,xedge = profile(np.array([0.,1.,2.,3.]), np.array([0.,1.,2.,3.]), 2)
-    >>> print yavg, ystd, n, xedge
+    >>> print(yavg, ystd, n, xedge)
     [0.5 2.5] [0.5 0.5] [2 2] [0.  1.5 3. ]
     """
 
@@ -253,7 +253,7 @@ def centers(x):
     Examples
     --------
     >>> c,hw = centers([0.0, 1.0, 2.0])
-    >>> print c, hw
+    >>> print(c, hw)
     [0.5 1.5] [0.5 0.5]
     """
 
@@ -950,7 +950,7 @@ def binomial_proportion(nsel, ntot, coverage=0.68):
     Examples
     --------
     >>> p,dpl,dpu = binomial_proportion(50,100,0.68)
-    >>> print "%.4f %.4f %.4f" % (p,dpl,dpu)
+    >>> print("%.4f %.4f %.4f" % (p,dpl,dpu))
     0.5000 0.0495 0.0495
     >>> abs(np.sqrt(0.5*(1.0-0.5)/100.0)-0.5*(dpl+dpu)) < 1e-3
     True

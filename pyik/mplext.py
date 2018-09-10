@@ -453,7 +453,7 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
             try:
                 k = gaussian_kde(ybinh)
             except:
-                print "Warning! Error in estimating kernel density for data in bin %s! Skipping bin..." % i
+                print("Warning! Error in estimating kernel density for data in bin %s! Skipping bin..." % i)
                 continue
 
             # support of violins

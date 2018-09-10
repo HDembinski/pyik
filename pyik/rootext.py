@@ -64,7 +64,7 @@ def ToVector(array):
     --------
     >>> a = (1, 2, 3)
     >>> ra = ToVector(a)
-    >>> print type(ra), ra[0], ra[1], ra[2]
+    >>> print(type(ra), ra[0], ra[1], ra[2])
     <class 'ROOT.vector<int>'> 1 2 3
     """
 
@@ -94,7 +94,7 @@ def ToNumpy(x):
     >>> a = ROOT.std.vector("double")(3)
     >>> a[0] = 1; a[1] = 2; a[2] = 3
     >>> na = ToNumpy(a)
-    >>> print type(na), na
+    >>> print(type(na), na)
     <class 'pyik.rootext.NDArray'> [1. 2. 3.]
     """
 
