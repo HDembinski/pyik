@@ -11,6 +11,7 @@ addons:
       - root-system
       - root-plugin-math-minuit2
       - python2.7-pyroot
+      - python-nlopt
 
 python:
   - 2.7
