@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import warnings
 
 
-def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
+def pmap(function, arguments, numprocesses=None, nchunks=None, async=False, chunksize=None):
     """
     Parallelized version of map. It calls function on arguments using numprocesses threads.
 
-    Also try the numexpr package, which is easy to use and may give you better performance.
+    Also try the numexpr package or numba, which are easy to use and may give you better
+    performance.
 
     Parameters
     ----------
@@ -16,12 +18,14 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
       The iterable arguments to function.
     numprocesses : int, optional (default = None)
       The number of processes to keep busy. If None, the number of CPUs is used.
-    chunksize: int, optional (default = None)
-      The number of chunks in which arguments are passed to the processes.
-      By default this is set to the number of processes.
+    nchunks: int, optional (default = None)
+      The number of chunks in which the arguments are split.
+      By default this is set to the number of processes, but sometimes you want
+      fewer chunks, so that they do not become too short.
     async : bool, optional (default = False)
       If async is true, the results can have arbitrary order. This can improve
       the speed of execution.
+    chunksize (deprecated): does the same as nchunks
 
     Returns
     -------
@@ -54,6 +58,11 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
     multiprocessing
     """
 
+    if chunksize is not None:
+        warnings.warn("chunksize keyword is deprecated, please use nchunks keyword",
+                      DeprecationWarning)
+        nchunks = chunksize
+
     import multiprocessing as mp
     from itertools import chain
 
@@ -62,12 +71,10 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
 
     assert np.iterable(arguments), "Input argument is not iterable!"
 
-    if chunksize is None:
+    if nchunks is None:
         chunksize = numprocesses
 
-    numprocesses = min(numprocesses, len(arguments), chunksize)
-
-    nchunks = min(numprocesses, chunksize)
+    nchunks = min(numprocesses, len(arguments), chunksize)
     argchunks = np.array_split(arguments, nchunks)
 
     q_in = mp.Queue(1)
@@ -85,14 +92,14 @@ def pmap(function, arguments, numprocesses=None, chunksize=None, async=False):
             q_out.put((i, res))
 
     proc = [mp.Process(target=worker, args=(function, q_in, q_out))
-            for _ in range(numprocesses)]
+            for _ in range(nchunks)]
 
     for p in proc:
         p.daemon = True
         p.start()
 
     sent = [q_in.put((i, x)) for i, x in enumerate(argchunks)]
-    [q_in.put((None, None)) for _ in range(numprocesses)]
+    [q_in.put((None, None)) for _ in range(nchunks)]
     res = [q_out.get() for _ in range(len(sent))]
 
     [p.join() for p in proc]
