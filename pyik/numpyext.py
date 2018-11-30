@@ -170,8 +170,14 @@ def profile(x, y, bins=10, range=None, sigma_cut=None):
     Examples
     --------
     >>> yavg,ystd,n,xedge = profile(np.array([0.,1.,2.,3.]), np.array([0.,1.,2.,3.]), 2)
-    >>> print(yavg, ystd, n, xedge)
-    [0.5 2.5] [0.5 0.5] [2 2] [0.  1.5 3. ]
+    >>> print(yavg)
+    [0.5 2.5]
+    >>> print(ystd)
+    [0.5 0.5]
+    >>> print(n)
+    [2 2]
+    >>> print(xedge)
+    [0.  1.5 3. ]
     """
 
     y = np.asfarray(np.atleast_1d(y))
@@ -253,8 +259,10 @@ def centers(x):
     Examples
     --------
     >>> c,hw = centers([0.0, 1.0, 2.0])
-    >>> print(c, hw)
-    [0.5 1.5] [0.5 0.5]
+    >>> print(c)
+    [0.5 1.5]
+    >>> print(hw)
+    [0.5 0.5]
     """
 
     x = np.atleast_1d(x)
