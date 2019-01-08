@@ -3,3 +3,4 @@ tests/cache*
 tests/mycache*
 *.db
 .cache
+pyik.egg-info

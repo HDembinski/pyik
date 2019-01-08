@@ -1360,7 +1360,7 @@ def qprint(x, s, latex=False):
         ns -= nx
     n = max(0, -ns + 1)
     if latex:
-        pm = "\pm"
+        pm = r"\pm"
     else:
         pm = "+/-"
     if sExp:
