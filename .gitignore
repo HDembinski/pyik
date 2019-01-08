@@ -4,3 +4,7 @@ tests/mycache*
 *.db
 .cache
 pyik.egg-info
+dist
+build
+.pytest_cache
+__pycache__
