@@ -299,15 +299,15 @@ def derivative(f, x, step=None, order=1):
     Examples
     --------
     >>> def f(x) : return 2 + x + 2*x*x + x*x*x
-    >>> "%.3g" % derivative(f, 1.0)
-    '8'
-    >>> "%.3g" % derivative(f, 1.0, step=1e-3)
-    '8'
-    >>> "%.3g" % derivative(f, 1.0, order=2)
-    '10'
-    >>> derivative(f, np.ones(2))
+    >>> round(derivative(f, 1.0), 3)
+    8
+    >>> round(derivative(f, 1.0, step=1e-3), 3)
+    8
+    >>> round(derivative(f, 1.0, order=2), 3)
+    10
+    >>> np.round(derivative(f, np.ones(2)), 3)
     array([8., 8.])
-    >>> derivative(f, np.ones(2), order=2)
+    >>> np.round(derivative(f, np.ones(2), order=2), 3)
     array([10., 10.])
 
     Notes
@@ -384,11 +384,11 @@ def derivativeND(f, xs, step=1e-8):
 
     Examples
     --------
-    >>> def f(xys):
-    ...     xs, ys = xys.T
-    ...     return xs**2 + ys**2
+    >>> def f(xy):
+    ...     x, y = xy.T
+    ...     return x ** 2 + y ** 2
     ...
-    >>> np.round(derivativeND(f, [[0., 0.], [1., 0.], [0., 1.]]), 2)
+    >>> derivativeND(f, ([0., 0.], [1., 0.], [0., 1.]))
     array([[0., 0.],
            [2., 0.],
            [0., 2.]])
