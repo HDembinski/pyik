@@ -1,6 +1,7 @@
-from pyik.performance import cached_at, cached
 import os
 import contextlib
+import numpy as np
+from numpy.testing import assert_allclose, assert_equal
 
 
 @contextlib.contextmanager
@@ -14,8 +15,16 @@ def pushd(new):
 def log(x, mode="r"):
     return open(str(x), mode)
     
+    
+def test_pmap():
+    from pyik.performance import pmap
+    assert pmap(lambda x: 2 * x, [1, 2, 3]) == [2, 4, 6]    
+    assert pmap(lambda x, y: x * y, (1, 2, 3), [3, 4, 5]) == [3, 8, 15]
+    assert_equal(pmap(lambda x: 2 * x, np.ones(3)), (2, 2, 2))
+
 
 def test_cached_at(tmpdir):
+    from pyik.performance import cached_at
     dbfilename = str(tmpdir.join("foo.db"))
     @cached_at(dbfilename)
     def func(x):
@@ -28,6 +37,7 @@ def test_cached_at(tmpdir):
 
 
 def test_cached(tmpdir):
+    from pyik.performance import cached
     @cached
     def func(x):
         with log(tmpdir.join("log"), "a") as l:

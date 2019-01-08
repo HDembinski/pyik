@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import warnings
+import multiprocessing as mp
+from itertools import chain
 
 
-def pmap(function, arguments, numprocesses=None, nchunks=None, asynch=False, chunksize=None):
+def pmap(function, *arguments, **kwargs):
     """
     Parallelized version of map. It calls function on arguments using numprocesses threads.
 
@@ -14,8 +16,9 @@ def pmap(function, arguments, numprocesses=None, nchunks=None, asynch=False, chu
     ----------
     function : function
       The function to call.
-    arguments : list
-      The iterable arguments to function.
+    arguments : sequence(s)
+      One or more sequences, which are passed to the function. If N sequences are
+      provided, function is called with N arguments.
     numprocesses : int, optional (default = None)
       The number of processes to keep busy. If None, the number of CPUs is used.
     nchunks: int, optional (default = None)
@@ -29,10 +32,11 @@ def pmap(function, arguments, numprocesses=None, nchunks=None, asynch=False, chu
 
     Returns
     -------
-    results : list
+    results : list or ndarray
       The values returned by the function calls, as would be done by
-      map(function, arguments). If async is True, the order of the results is
-      arbitrary.
+      map(function, *arguments). If async is True, the order of the results is
+      arbitrary. If the first of arguments is an ndarray, the result is converted to an
+      ndarray.
 
     Notes
     -----
@@ -50,7 +54,7 @@ def pmap(function, arguments, numprocesses=None, nchunks=None, asynch=False, chu
     Examples
     --------
     >>> def f(x): return x*x
-    >>> pmap(f, (1,2,3))
+    >>> pmap(f, (1, 2, 3))
     [1, 4, 9]
 
     See Also
@@ -58,57 +62,57 @@ def pmap(function, arguments, numprocesses=None, nchunks=None, asynch=False, chu
     multiprocessing
     """
 
+    assert len(arguments) > 0, "at least one iterable argument is required"
+    assert all(np.iterable(args) for args in arguments), "arguments must be iterable"
+    length = len(arguments[0])
+    assert all(length == len(args) for args in arguments[1:]), "all arguments must have same length"
+
+    numprocesses = kwargs.get("numprocesses", mp.cpu_count())
+    nchunks = kwargs.get("nchunks", numprocesses)
+    asynch = kwargs.get("asynch", False)
+    chunksize = kwargs.get("chunksize", None)
+
     if chunksize is not None:
         warnings.warn("chunksize keyword is deprecated, please use nchunks keyword",
                       DeprecationWarning)
         nchunks = chunksize
 
-    import multiprocessing as mp
-    from itertools import chain
+    nchunks = min(numprocesses, length, nchunks)
+    argchunks = [np.array_split(args, nchunks) for args in arguments]
 
-    if numprocesses is None:
-        numprocesses = mp.cpu_count()
+    def worker(f, conn):
+        i, args = conn.recv()
+        result = map(f, *args)
+        if not np.iterable(result):
+            result = list(result)
+        conn.send((i, result))
 
-    assert np.iterable(arguments), "Input argument is not iterable!"
+    pipes = [mp.Pipe() for _ in range(nchunks)]
+    procs = [mp.Process(target=worker, args=(function, p[1])) for p in pipes]
 
-    if nchunks is None:
-        chunksize = numprocesses
-
-    nchunks = min(numprocesses, len(arguments), chunksize)
-    argchunks = np.array_split(arguments, nchunks)
-
-    q_in = mp.Queue(1)
-    q_out = mp.Queue()
-
-    def worker(f, q_in, q_out):
-        while True:
-            i, x = q_in.get()
-            if i is None:
-                break
-            x = np.atleast_1d(x)
-            res = []
-            for ix in x:
-                res.append(f(ix))
-            q_out.put((i, res))
-
-    proc = [mp.Process(target=worker, args=(function, q_in, q_out))
-            for _ in range(nchunks)]
-
-    for p in proc:
+    for p in procs:
         p.daemon = True
         p.start()
 
-    sent = [q_in.put((i, x)) for i, x in enumerate(argchunks)]
-    [q_in.put((None, None)) for _ in range(nchunks)]
-    res = [q_out.get() for _ in range(len(sent))]
+    for i, p in enumerate(pipes):
+        args = [args[i] for args in argchunks]
+        p[0].send((i, args))
 
-    [p.join() for p in proc]
-    [p.terminate() for p in proc]
+    results = [p[0].recv() for p in pipes]
+
+    for p in procs:
+        p.join()
 
     if not asynch:
-        res = sorted(res)
+        results = sorted(results)
 
-    return list(chain.from_iterable([x for _, x in res]))
+    first_arg = arguments[0]
+    if isinstance(first_arg, np.ndarray):
+        return np.concatenate([x[1] for x in results], axis=0)
+    res = []
+    for i, r in results:
+        res += r
+    return res
 
 
 def cached(keepOpen=False, lockCacheFile=False, trackCode=True):
