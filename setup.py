@@ -18,7 +18,10 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD 3-clause License",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Physics",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
 )
