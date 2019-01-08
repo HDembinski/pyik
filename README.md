@@ -8,7 +8,7 @@ The tools are grouped by topic into several modules which are listed below. Most
 
 ## Installation
 
-`pyik` supports Python2 and Python3. Install it with `pip`.
+PyIK supports Python2 and Python3. Install it with `pip`.
 ```
 pip install --user pyik
 ```
