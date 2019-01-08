@@ -6,6 +6,13 @@ This package provides tools to simplify common analysis tasks in particle physic
 
 The tools are grouped by topic into several modules which are listed below. Most of them depend on external modules which are not shipped with Python. The respective dependencies are also listed.
 
+## Installation
+
+`pyik` supports Python2 and Python3. Install it with `pip`.
+```
+pip install --user pyik
+```
+
 ## Content
 
 * *corsika*: Tools to work with CORSIKA files
