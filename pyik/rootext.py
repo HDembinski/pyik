@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six.moves import range
 import numpy as np
 import tempfile
 import ROOT
@@ -75,7 +76,7 @@ def ToVector(array):
         res = ROOT.std.vector("double")(n)
     elif isinstance(array[0], int) or (type(array) == np.ndarray and np.issubdtype(array[0].dtype, np.float)):
         res = ROOT.std.vector("int")(n)
-    for i in xrange(n):
+    for i in range(n):
         res[i] = array[i]
     return res
 
@@ -110,8 +111,8 @@ def ToNumpy(x):
     elif isinstance(x, ROOT.TMatrixD) or isinstance(x, ROOT.TMatrixDSym):
         # return NDArray((x.GetNrows(),x.GetNcols()), np.float64, x.GetMatrixArray(), x)
         a = np.empty((x.GetNrows(), x.GetNcols()), np.float64)
-        for ix in xrange(x.GetNrows()):
-            for iy in xrange(x.GetNcols()):
+        for ix in range(x.GetNrows()):
+            for iy in range(x.GetNcols()):
                 a[ix, iy] = x(ix, iy)
         return a
     # here a reference to the original object is stored so that
@@ -140,18 +141,18 @@ def ToNumpy(x):
         yedges = np.empty(ny + 1)
         zedges = np.empty(nz + 1)
         h = np.empty((nx, ny, nz))
-        for ix in xrange(nx):
+        for ix in range(nx):
             xedges[ix] = x.GetXaxis().GetBinLowEdge(ix + 1)
         xedges[nx] = x.GetXaxis().GetBinLowEdge(nx + 1)
-        for iy in xrange(ny):
+        for iy in range(ny):
             yedges[iy] = x.GetYaxis().GetBinLowEdge(iy + 1)
         yedges[ny] = x.GetYaxis().GetBinLowEdge(ny + 1)
-        for iz in xrange(nz):
+        for iz in range(nz):
             zedges[iz] = x.GetZaxis().GetBinLowEdge(iz + 1)
         zedges[nz] = x.GetZaxis().GetBinLowEdge(nz + 1)
-        for ix in xrange(nx):
-            for iy in xrange(ny):
-                for iz in xrange(nz):
+        for ix in range(nx):
+            for iy in range(ny):
+                for iz in range(nz):
                     h[ix, iy, iz] = x.GetBinContent(ix + 1, iy + 1, iz + 1)
         return h, xedges, yedges, zedges
     elif isinstance(x, ROOT.TH2):
@@ -160,14 +161,14 @@ def ToNumpy(x):
         xedges = np.empty(nx + 1)
         yedges = np.empty(ny + 1)
         h = np.empty((nx, ny))
-        for ix in xrange(nx):
+        for ix in range(nx):
             xedges[ix] = x.GetXaxis().GetBinLowEdge(ix + 1)
         xedges[nx] = x.GetXaxis().GetBinLowEdge(nx + 1)
-        for iy in xrange(ny):
+        for iy in range(ny):
             yedges[iy] = x.GetYaxis().GetBinLowEdge(iy + 1)
         yedges[ny] = x.GetYaxis().GetBinLowEdge(ny + 1)
-        for ix in xrange(nx):
-            for iy in xrange(ny):
+        for ix in range(nx):
+            for iy in range(ny):
                 h[ix, iy] = x.GetBinContent(ix + 1, iy + 1)
         return h, xedges, yedges
     elif isinstance(x, ROOT.TProfile):
@@ -175,7 +176,7 @@ def ToNumpy(x):
         xedges = np.empty(n + 1)
         hs = np.empty(n)
         hes = np.empty(n)
-        for i in xrange(n):
+        for i in range(n):
             xedges[i] = x.GetXaxis().GetBinLowEdge(i + 1)
             hs[i] = x.GetBinContent(i + 1)
             hes[i] = x.GetBinError(i + 1)
@@ -185,7 +186,7 @@ def ToNumpy(x):
         n = x.GetXaxis().GetNbins()
         xedges = np.empty(n + 1)
         h = np.empty(n)
-        for i in xrange(n):
+        for i in range(n):
             xedges[i] = x.GetXaxis().GetBinLowEdge(i + 1)
             h[i] = x.GetBinContent(i + 1)
         xedges[n] = x.GetXaxis().GetBinLowEdge(n + 1)

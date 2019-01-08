@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from six.moves import range
+
 """Utility functions to read CORSIKA longitudinal files and headers of ground particle files."""
 
 # transcribed from particle identifiers in CORSIKA manual, only some
@@ -41,7 +44,7 @@ class LongitudinalDataProvider:
         elif words[4] == "VERTICAL":
             self.depthType = "vertical"
         else:
-            raise StandardError(
+            raise Exception(
                 "Could not determine depth type from first line of longitudinal file")
 
         self.depth = np.empty(n)
@@ -286,7 +289,7 @@ def createShowerInfoLibrary(corsikafilenames, libraryfilename, fixed=False, old=
 
     # ensures that users will submit a list of files
     if not isinstance(corsikafilenames, list):
-        print "Program created for multiple inputs."
+        print("Program created for multiple inputs.")
         return
 
     atmos_values = defaultdict(list)
@@ -297,10 +300,10 @@ def createShowerInfoLibrary(corsikafilenames, libraryfilename, fixed=False, old=
             continue
 
         if not path.exists(fn):
-            print "### warning: file not found", fn
+            print("### warning: file not found", fn)
             continue
         if (not IsDataFileValid(fn) and not fnmatch.fnmatchcase(fn, "*.lst")):
-            print fn, "has no valid run end tag, not reading it."
+            print(fn, "has no valid run end tag, not reading it.")
             continue
 
         stdout.write("Scanning file %i/%i: %s    \r" %
@@ -318,7 +321,7 @@ def createShowerInfoLibrary(corsikafilenames, libraryfilename, fixed=False, old=
                     atmos_values["energy_mc"].append(lst.energy)
                     atmos_values["primary_id"].append(lst.particle)
 
-                    if lst.particle in primary_dic.keys():
+                    if lst.particle in primary_dic:
                         atmos_values["primary"].append(
                             primary_dic[lst.particle])
                     else:
@@ -355,13 +358,13 @@ def createShowerInfoLibrary(corsikafilenames, libraryfilename, fixed=False, old=
                     atmos_values["atmc_4"].append(lst.atmc[4])
 
                 except:
-                    print "\nAtmosphere information not present in steering file of {}!".format(fn)
+                    print("\nAtmosphere information not present in steering file of {}!".format(fn))
         else:
-            print "\nCannot read steering file, information will not be available!"
+            print("\nCannot read steering file, information will not be available!")
 
-    print "\nBad files:"
+    print("\nBad files:")
     for bad in bad_files:
-        print bad
+        print(bad)
 
     atm_arr = pd.DataFrame(atmos_values)
     atm_arr.set_index(['id'], drop=False, inplace=True)

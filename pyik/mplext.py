@@ -5,7 +5,8 @@ Contains extensions to matplotlib.
 Special functions to extend matplotlib in areas where it lacks certain functionality.
 
 """
-
+from __future__ import print_function
+from six.moves import range
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import Formatter as MPLFormatter
@@ -106,7 +107,7 @@ def plot_hist(xedges, ws, axes=None, **kwargs):
     xy[0][0] = xedges[0]
     xy[0][-1] = xedges[-1]
 
-    for i in xrange(m):
+    for i in range(m):
         xy[0][1 + 2 * i] = xedges[i]
         xy[1][1 + 2 * i] = ws[i]
         xy[0][1 + 2 * i + 1] = xedges[i + 1]
@@ -169,7 +170,7 @@ def plot_boxerrors(xedges, ys, yes, axes=None, **kwargs):
     n = len(ys)
     isAsymmetric = len(yes.shape) == 2
     rs = []
-    for i in xrange(n):
+    for i in range(n):
         x0 = xedges[i]
         y0 = ys[i] - yes[i][0] if isAsymmetric else ys[i] - yes[i]
         xw = xedges[i + 1] - xedges[i]
@@ -228,8 +229,8 @@ def cornertext(text, loc=2, color=None, frameon=False,
         if loc in locTranslate:
             loc = locTranslate[loc]
         else:
-            message = 'Unrecognized location "%s". Falling back on "upper left"; valid locations are\n\t%s' \
-                      % (loc, '\n\t'.join(locTranslate.keys()))
+            message = ('Unrecognized location "%s". Falling back on "upper left"; valid '
+                       'locations are\n\t%s') % (loc, '\n\t'.join(locTranslate.keys()))
             warnings.warn(message)
             loc = 2
 
@@ -453,7 +454,7 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
             try:
                 k = gaussian_kde(ybinh)
             except:
-                print "Warning! Error in estimating kernel density for data in bin %s! Skipping bin..." % i
+                print("Warning! Error in estimating kernel density for data in bin %s! Skipping bin..." % i)
                 continue
 
             # support of violins

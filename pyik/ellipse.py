@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six.moves import range
 import numpy as np
 
 
@@ -71,7 +72,7 @@ def fit_ellipse(x, y, centered=False):
     w, v = eig(m)
     v = np.real(v)
     cond = 4.0 * v[0] * v[2] - v[1] ** 2 > 0
-    for ind in xrange(len(cond)):
+    for ind in range(len(cond)):
         if cond[ind] > 0:
             break
     a1 = np.real(np.squeeze(v[:, ind]))

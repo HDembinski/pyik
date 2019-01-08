@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Time conversion utilities."""
-
+from __future__ import print_function
 
 def utc_to_gps(utcsec):
     """
@@ -208,7 +208,7 @@ def DatetimeToGPSSeconds(dt, timezone=None):
     from datetime import datetime
 
     if dt.tzinfo is not None:
-        print "Warning! Your datetime is timezone-aware. This function assumes the timezone that is passed to the function and won't do a conversion between timezones!"
+        print("Warning! Your datetime is timezone-aware. This function assumes the timezone that is passed to the function and won't do a conversion between timezones!")
 
     if timezone is None:
 

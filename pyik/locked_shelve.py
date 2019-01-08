@@ -22,8 +22,8 @@
 
 import shelve
 import fcntl
-import new
-import __builtin__
+import types
+from six.moves import builtins
 from fcntl import LOCK_SH, LOCK_EX, LOCK_UN, LOCK_NB
 
 
@@ -41,7 +41,7 @@ def open(filename, flag='c', protocol=None, writeback=False, block=True, lckfile
     """
     if lckfilename is None:
         lckfilename = filename + ".lck"
-    lckfile = __builtin__.open(lckfilename, 'w')
+    lckfile = builtins.open(lckfilename, 'w')
 
     # Accquire the lock
     if flag == 'r':
@@ -53,6 +53,6 @@ def open(filename, flag='c', protocol=None, writeback=False, block=True, lckfile
     fcntl.flock(lckfile.fileno(), lockflags)
 
     shelf = shelve.open(filename, flag, protocol, writeback)
-    shelf.close = new.instancemethod(_close, shelf, shelve.Shelf)
+    shelf.close = types.MethodType(_close, shelf)
     shelf.lckfile = lckfile
     return shelf

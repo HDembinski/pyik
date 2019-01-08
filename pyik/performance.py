@@ -3,7 +3,7 @@ import numpy as np
 import warnings
 
 
-def pmap(function, arguments, numprocesses=None, nchunks=None, async=False, chunksize=None):
+def pmap(function, arguments, numprocesses=None, nchunks=None, asynch=False, chunksize=None):
     """
     Parallelized version of map. It calls function on arguments using numprocesses threads.
 
@@ -22,7 +22,7 @@ def pmap(function, arguments, numprocesses=None, nchunks=None, async=False, chun
       The number of chunks in which the arguments are split.
       By default this is set to the number of processes, but sometimes you want
       fewer chunks, so that they do not become too short.
-    async : bool, optional (default = False)
+    asynch : bool, optional (default = False)
       If async is true, the results can have arbitrary order. This can improve
       the speed of execution.
     chunksize (deprecated): does the same as nchunks
@@ -105,7 +105,7 @@ def pmap(function, arguments, numprocesses=None, nchunks=None, async=False, chun
     [p.join() for p in proc]
     [p.terminate() for p in proc]
 
-    if not async:
+    if not asynch:
         res = sorted(res)
 
     return list(chain.from_iterable([x for _, x in res]))
@@ -155,7 +155,7 @@ def cached(keepOpen=False, lockCacheFile=False, trackCode=True):
     Limitations
     -----------
     The function is only are allowed to accept and return objects
-    that can be handled by the cPickle module. Fortunately, that is practically
+    that can be handled by the pickle module. Fortunately, that is practically
     everything.
 
     Examples
@@ -181,7 +181,7 @@ def cached(keepOpen=False, lockCacheFile=False, trackCode=True):
     See also
     --------
     shelve
-    cPickle
+    pickle
     """
 
     import os
@@ -268,7 +268,7 @@ def cached_at(cacheFileName, keepOpen=False, lockCacheFile=False, trackCode=True
     See also
     --------
     shelve
-    cPickle
+    pickle
     """
 
     from functools import wraps
@@ -277,7 +277,7 @@ def cached_at(cacheFileName, keepOpen=False, lockCacheFile=False, trackCode=True
         raise ValueError("keepOpen cannot be used together with lockCacheFile")
 
     if lockCacheFile:
-        import locked_shelve as shelve
+        from . import locked_shelve as shelve
     else:
         import shelve
 
@@ -290,17 +290,24 @@ def cached_at(cacheFileName, keepOpen=False, lockCacheFile=False, trackCode=True
         @wraps(function)
         def decorated_function(*args, **kwargs):
 
-            import cPickle
+            from six.moves import cPickle as pickle
+            import six
             import inspect
-            import md5
+            import hashlib
+
+            def encode(x):
+                if six.PY2:
+                    return x
+                else:
+                    return x.encode("utf-8")
 
             # Pickle the function arguments to use them as key
             # it is preferable not to include the function name in the pickle
             # when the function name changes, the cache file name changes anyway
             # if the user decides to recall the function and manually recall the
             # cache, it will still work
-            key = cPickle.dumps((args, kwargs), protocol=-1)
-            code_hash = md5.md5(inspect.getsource(function)).digest()
+            key = str(pickle.dumps((args, kwargs), protocol=-1))
+            code_hash = hashlib.md5(encode(inspect.getsource(function))).digest()
 
             if keepOpen:
                 d = _d  # Use open shelve
@@ -328,7 +335,7 @@ def cached_at(cacheFileName, keepOpen=False, lockCacheFile=False, trackCode=True
                                     1, writeback=False)
 
                 if key in d:
-                    if cPickle.dumps([d[key]["cache"]], protocol=-1) == cPickle.dumps([output], protocol=-1):
+                    if pickle.dumps([d[key]["cache"]], protocol=-1) == pickle.dumps([output], protocol=-1):
                         dk = d[key]
                         dk["code_hash"] += [code_hash]
                         d[key] = dk
