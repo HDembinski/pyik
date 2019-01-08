@@ -46,5 +46,4 @@ def test_cached(tmpdir):
     with pushd(tmpdir):
         assert func(2) == 4
         assert func(2) == 4
-    with log(tmpdir.join("log")) as l:
-        assert l.read() == "x" # only one call
+    assert log(tmpdir.join("log")).read() == "x" # only one call
