@@ -82,9 +82,7 @@ def pmap(function, *arguments, **kwargs):
 
     def worker(f, conn):
         i, args = conn.recv()
-        result = map(f, *args)
-        if not np.iterable(result):
-            result = list(result)
+        result = list(map(f, *args))
         conn.send((i, result))
 
     pipes = [mp.Pipe() for _ in range(nchunks)]
@@ -104,7 +102,7 @@ def pmap(function, *arguments, **kwargs):
         p.join()
 
     if not asynch:
-        results = sorted(results)
+        results.sort()
 
     first_arg = arguments[0]
     if isinstance(first_arg, np.ndarray):

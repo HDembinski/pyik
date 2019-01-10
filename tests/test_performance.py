@@ -14,13 +14,20 @@ def pushd(new):
 
 def log(x, mode="r"):
     return open(str(x), mode)
-    
+
+def f1(x):
+    return 2 * x
+
+def f2(x, y):
+    return x * y
     
 def test_pmap():
     from pyik.performance import pmap
-    assert pmap(lambda x: 2 * x, [1, 2, 3]) == [2, 4, 6]    
-    assert pmap(lambda x, y: x * y, (1, 2, 3), [3, 4, 5]) == [3, 8, 15]
-    assert_equal(pmap(lambda x: 2 * x, np.ones(3)), (2, 2, 2))
+    assert pmap(f1, [1, 2, 3]) == [2, 4, 6]
+    assert pmap(f2, (1, 2, 3), [3, 4, 5]) == [3, 8, 15]
+    out = pmap(f1, np.ones(3))
+    assert isinstance(out, np.ndarray)
+    assert_equal(out, (2, 2, 2))
 
 
 def test_cached_at(tmpdir):
