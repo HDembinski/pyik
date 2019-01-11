@@ -25,10 +25,6 @@ def pmap(function, *arguments, **kwargs):
       The number of chunks in which the arguments are split.
       By default this is set to the number of processes, but sometimes you want
       fewer chunks, so that they do not become too short.
-    asynch : bool, optional (default = False)
-      If async is true, the results can have arbitrary order. This can improve
-      the speed of execution.
-    chunksize (deprecated): does the same as nchunks
 
     Returns
     -------
@@ -69,21 +65,25 @@ def pmap(function, *arguments, **kwargs):
 
     numprocesses = kwargs.get("numprocesses", mp.cpu_count())
     nchunks = kwargs.get("nchunks", numprocesses)
-    asynch = kwargs.get("asynch", False)
-    chunksize = kwargs.get("chunksize", None)
 
+    chunksize = kwargs.get("chunksize", None)
     if chunksize is not None:
         warnings.warn("chunksize keyword is deprecated, please use nchunks keyword",
                       DeprecationWarning)
         nchunks = chunksize
 
+    if not kwargs.get("async", True):
+        warnings.warn("async == False is deprecated, pmap results are always in "
+                      "correct order now",
+                      DeprecationWarning)
+
     nchunks = min(numprocesses, length, nchunks)
     argchunks = [np.array_split(args, nchunks) for args in arguments]
 
     def worker(f, conn):
-        i, args = conn.recv()
+        args = conn.recv()
         result = list(map(f, *args))
-        conn.send((i, result))
+        conn.send(result)
 
     pipes = [mp.Pipe() for _ in range(nchunks)]
     procs = [mp.Process(target=worker, args=(function, p[1])) for p in pipes]
@@ -94,21 +94,18 @@ def pmap(function, *arguments, **kwargs):
 
     for i, p in enumerate(pipes):
         args = [args[i] for args in argchunks]
-        p[0].send((i, args))
+        p[0].send(args)
 
     results = [p[0].recv() for p in pipes]
 
     for p in procs:
         p.join()
 
-    if not asynch:
-        results.sort()
-
     first_arg = arguments[0]
     if isinstance(first_arg, np.ndarray):
-        return np.concatenate([x[1] for x in results], axis=0)
+        return np.concatenate([x for x in results], axis=0)
     res = []
-    for i, r in results:
+    for r in results:
         res += r
     return res
 
