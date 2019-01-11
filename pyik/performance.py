@@ -2,7 +2,6 @@
 import numpy as np
 import warnings
 import multiprocessing as mp
-from itertools import chain
 
 
 def pmap(function, *arguments, **kwargs):
