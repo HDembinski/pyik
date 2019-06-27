@@ -15,6 +15,7 @@ setuptools.setup(
     url="https://github.com/hdembinski/pyik",
     packages=setuptools.find_packages(),
     tests_require=["numpy", "scipy", "matplotlib"],
+    install_requires=["numpy"],
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
