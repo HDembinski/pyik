@@ -206,11 +206,14 @@ def cornertext(text, loc=2, color=None, frameon=False,
 
     Parameters
     ----------
-    text: string or tuple of strings
-      Text to be placed in the plot. May be a tuple of strings to get
+    text: string or sequence of strings
+      Text to be placed in the plot. May be a sequence of strings to get
       several lines of text.
     loc: integer or string
       Location of text, same as in legend(...).
+    color: color or sequence of colors
+      For making colored text. May be a sequence of colors to color
+      each text line differently.
     frameon: boolean (optional)
       Whether to draw a border around the text. Default is False.
     axes: Axes (optional, default: None)
