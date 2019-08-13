@@ -554,3 +554,44 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
     plt.xlim(min(xcens - 2 * xhws), max(xcens + 2 * xhws))
 
     return xcens, xhws, means, stds, meds, mads, ns
+
+
+def plot_labeled_vspan(x0, x1, label, y=0.5, axes=None,
+                       color="k", facecolor=None, fontsize=None, zorder=0):
+    """
+    Draw a vspan with a label in the center.
+
+    Parameters
+    ----------
+    x0: float
+        data coordinate where span starts.
+    x1: float
+        data coordinate where span ends.
+    label: str
+        Text label.
+    y (optional): float
+        Vertical axes coordinate around which to center label. Default: 0.5.
+    axes (optional): Axes instance
+        Axes instance to draw onto. Default: matplotlib.pyplot.gca().
+    color (optional): str or sequence
+        Color for the text and the span (if facecolor is not set).
+        Default: black.
+    facecolor (optional): str or sequence
+        Color for the span. Default: color lightened by 0.75.
+    fontsize (optional): str or float
+        Fontsize for the text.
+    zorder (optional): int
+        z-placement of span. Default: zorder=0.
+    """
+    if axes is None:
+        axes = plt.gca()
+    facecolor = lighten_color(color, 0.75) if facecolor is None else facecolor
+    span = axes.axvspan(x0, x1,
+        facecolor=facecolor,
+        zorder=zorder)
+    text = axes.text(0.5 * (x0 + x1), y, label,
+        transform=axes.get_xaxis_transform(),
+        ha="center", va="center",
+        fontsize=fontsize, rotation=90,
+        zorder=zorder+1)
+    return span, text
