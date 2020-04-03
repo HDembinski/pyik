@@ -9,7 +9,6 @@ from __future__ import print_function
 from six.moves import range
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.ticker import Formatter as MPLFormatter
 import matplotlib.colors as mplcolors
 import colorsys
 
@@ -27,6 +26,57 @@ def lighten_color(color, amount):
     c = mplcolors.cnames.get(color, color)
     c = colorsys.rgb_to_hls(*mplcolors.to_rgb(c))
     return colorsys.hls_to_rgb(c[0], min(max(c[1] + amount, 0.0), 1.0), c[2])
+
+
+def plot_stacked(
+    xe, w, labels, colors=None, threshold=0.0, sub_threshold_color="0.8", reverse=True
+):
+    """
+    Plot stacked histograms.
+
+    A legend is not automatically drawn by this command. Call pyplot.legend() or figure.legend() to generate it.
+
+    Parameters
+    ----------
+    xe: array(N+1)
+        Bin edges.
+    w: array((M, N))
+        Counts. M is the number of stacked histograms.
+    labels: sequences of strings
+        Labels for the legend.
+    colors: sequence over colors OR None (default: None)
+        Colors to be used for each entry.
+    threshold: float (default: 0.0)
+        Fraction below which the stacked histograms are grouped together.
+    sub_threshold_color: matplotlib color (default: "0.8")
+        Color for the sub-threshold stacks.
+    reverse: boolean (default: True)
+        If true, plot the largest component at the bottom of the stack and work towards smaller and smaller components. If false, start with the smallest component.
+    """
+    n = w.shape[0]
+    assert len(labels) == n
+    wsum = np.sum(w, axis=1)
+
+    def transposed(items):
+        return map(list, zip(*items))
+
+    wsum, indices = transposed(sorted(zip(wsum, range(n)), reverse=reverse))
+    fractions = wsum / np.sum(wsum)
+    indices = np.array(indices)
+    wsum = np.sum(w[indices[fractions < threshold]], axis=0)
+    indices = indices[fractions >= threshold]
+    n = len(indices)
+    plot_hist(xe, wsum, facecolor=sub_threshold_color, zorder=n)
+    for i, j in enumerate(indices):
+        wsum += w[j]
+        plot_hist(
+            xe,
+            wsum,
+            color=f"C{n-1-i}" if colors is None else colors[j],
+            facecolor=f"C{n-1-i}" if colors is None else colors[j],
+            zorder=n - 1 - i,
+            label=labels[j],
+        )
 
 
 def plot_bracket(x, y, yerr, xerr=None, capsize=3, axes=None, **kwargs):
@@ -52,7 +102,7 @@ def plot_bracket(x, y, yerr, xerr=None, capsize=3, axes=None, **kwargs):
         if k in kwargs:
             col = kwargs[k]
             del kwargs[k]
-    kwargs['ls'] = 'None'
+    kwargs["ls"] = "None"
 
     x = np.atleast_1d(x)
     y = np.atleast_1d(y)
@@ -72,10 +122,26 @@ def plot_bracket(x, y, yerr, xerr=None, capsize=3, axes=None, **kwargs):
         dy = 0.05
         t = 2 * dy * capsize
         w = 0.5
-        m1 = ((-w - dx, t + dy), (-w - dx, -dy), (w + dx, -dy), (w + dx, t + dy),
-              (w - dx, t + dy), (w - dx, dy), (-w + dx, dy), (-w + dx, t + dy))
-        m2 = ((-w - dx, -t - dy), (-w - dx, dy), (w + dx, dy), (w + dx, -t - dy),
-              (w - dx, -t - dy), (w - dx, -dy), (-w + dx, -dy), (-w + dx, -t - dy))
+        m1 = (
+            (-w - dx, t + dy),
+            (-w - dx, -dy),
+            (w + dx, -dy),
+            (w + dx, t + dy),
+            (w - dx, t + dy),
+            (w - dx, dy),
+            (-w + dx, dy),
+            (-w + dx, t + dy),
+        )
+        m2 = (
+            (-w - dx, -t - dy),
+            (-w - dx, dy),
+            (w + dx, dy),
+            (w + dx, -t - dy),
+            (w - dx, -t - dy),
+            (w - dx, -dy),
+            (-w + dx, -dy),
+            (-w + dx, -t - dy),
+        )
         axes.plot(x, yd, marker=m1, color=col, mec=col, **kwargs)
         axes.plot(x, yu, marker=m2, color=col, mec=col, **kwargs)
 
@@ -94,10 +160,26 @@ def plot_bracket(x, y, yerr, xerr=None, capsize=3, axes=None, **kwargs):
         dy = 0.01
         t = 2 * dx * capsize
         h = 0.5
-        m1 = ((t + dx, -h - dy), (-dx, -h - dy), (-dx, h + dy), (t + dx, h + dy),
-              (t + dx, h - dy), (dx, h - dy), (dx, -h + dy), (t + dx, -h + dy))
-        m2 = ((-t - dx, -h - dy), (dx, -h - dy), (dx, h + dy), (-t - dx, h + dy),
-              (-t - dx, h - dy), (-dx, h - dy), (-dx, -h + dy), (-t - dx, -h + dy))
+        m1 = (
+            (t + dx, -h - dy),
+            (-dx, -h - dy),
+            (-dx, h + dy),
+            (t + dx, h + dy),
+            (t + dx, h - dy),
+            (dx, h - dy),
+            (dx, -h + dy),
+            (t + dx, -h + dy),
+        )
+        m2 = (
+            (-t - dx, -h - dy),
+            (dx, -h - dy),
+            (dx, h + dy),
+            (-t - dx, h + dy),
+            (-t - dx, h - dy),
+            (-dx, h - dy),
+            (-dx, -h + dy),
+            (-t - dx, -h + dy),
+        )
         axes.plot(xd, y, marker=m1, color=col, mec=col, **kwargs)
         axes.plot(xu, y, marker=m2, color=col, mec=col, **kwargs)
 
@@ -144,6 +226,7 @@ def plot_hist(xedges, ws, axes=None, **kwargs):
         if "label" in kwargs:
             # label hack
             from matplotlib.patches import Rectangle
+
             r = Rectangle((0, 0), 0, 0, **kwargs)
             axes.add_patch(r)
             del kwargs["label"]
@@ -199,8 +282,7 @@ def plot_boxerrors(xedges, ys, yes, axes=None, **kwargs):
     return rs
 
 
-def cornertext(text, loc=2, color=None, frameon=False,
-               axes=None, **kwargs):
+def cornertext(text, loc=2, color=None, frameon=False, axes=None, **kwargs):
     """
     Conveniently places text in a corner of a plot.
 
@@ -233,24 +315,26 @@ def cornertext(text, loc=2, color=None, frameon=False,
         axes = plt.gca()
 
     locTranslate = {
-        'upper right': 1,
-        'upper left': 2,
-        'lower left': 3,
-        'lower right': 4,
-        'right': 5,
-        'center left': 6,
-        'center right': 7,
-        'lower center': 8,
-        'upper center': 9,
-        'center': 10
+        "upper right": 1,
+        "upper left": 2,
+        "lower left": 3,
+        "lower right": 4,
+        "right": 5,
+        "center left": 6,
+        "center right": 7,
+        "lower center": 8,
+        "upper center": 9,
+        "center": 10,
     }
 
     if isinstance(loc, str):
         if loc in locTranslate:
             loc = locTranslate[loc]
         else:
-            message = ('Unrecognized location "%s". Falling back on "upper left"; valid '
-                       'locations are\n\t%s') % (loc, '\n\t'.join(locTranslate.keys()))
+            message = (
+                'Unrecognized location "%s". Falling back on "upper left"; valid '
+                "locations are\n\t%s"
+            ) % (loc, "\n\t".join(locTranslate.keys()))
             warnings.warn(message)
             loc = 2
 
@@ -288,24 +372,26 @@ def cornertext(text, loc=2, color=None, frameon=False,
 
     texts = [text] if isinstance(text, str) else text
 
-    colors = [color for t in texts] if (
-        isinstance(color, str) or color is None) else color
+    colors = (
+        [color for t in texts] if (isinstance(color, str) or color is None) else color
+    )
 
     tas = []
     for t, c in zip(texts, colors):
-        ta = TextArea(t,
-                      textprops={"color": c, "fontproperties": fontproperties},
-                      multilinebaseline=True,
-                      minimumdescent=True,
-                      **kwargs)
+        ta = TextArea(
+            t,
+            textprops={"color": c, "fontproperties": fontproperties},
+            multilinebaseline=True,
+            minimumdescent=True,
+            **kwargs,
+        )
         tas.append(ta)
 
     vpack = VPacker(children=tas, pad=0, sep=handletextpad)
 
-    aob = AnchoredOffsetbox(loc, child=vpack,
-                            pad=borderpad,
-                            borderpad=borderaxespad,
-                            frameon=frameon)
+    aob = AnchoredOffsetbox(
+        loc, child=vpack, pad=borderpad, borderpad=borderaxespad, frameon=frameon
+    )
 
     axes.add_artist(aob)
     return aob
@@ -353,16 +439,29 @@ def uncertainty_ellipse(par, cov, cfactor=1.51, axes=None, **kwargs):
     s0 = cfactor * sqrt(s[0])
     s1 = cfactor * sqrt(s[1])
 
-    ellipse = Ellipse(xy=par, width=2.0 * s0, height=2.0 * s1,
-                      angle=angle, **kwargs)
+    ellipse = Ellipse(xy=par, width=2.0 * s0, height=2.0 * s1, angle=angle, **kwargs)
     axes.add_patch(ellipse)
 
     return ellipse
 
 
-def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
-               color="k", marker="o", draw="amv", xmean=False,
-               extend=3, outliers=True, textpos=None, axes=None, **kwargs):
+def ViolinPlot(
+    x,
+    y,
+    bins=10,
+    range=None,
+    offsetX=0,
+    offsetY=0,
+    color="k",
+    marker="o",
+    draw="amv",
+    xmean=False,
+    extend=3,
+    outliers=True,
+    textpos=None,
+    axes=None,
+    **kwargs,
+):
     """
     Draw a violin (kernel density estimate) plot with mean and median profiles.
 
@@ -428,12 +527,17 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
         xcens = x
         # xhws = (x[1:] - x[:-1]) / 2.
         # xhws = np.append(xhws, xhws[-1])
-        xhws = np.ones(len(x)) * min((x[1:] - x[:-1]) / 2.)
+        xhws = np.ones(len(x)) * min((x[1:] - x[:-1]) / 2.0)
         ybins = y
 
     l = len(ybins)
-    means, stds, meds, mads, ns = np.zeros(l), np.zeros(l), np.zeros(l), \
-        np.zeros(l), np.zeros(l)
+    means, stds, meds, mads, ns = (
+        np.zeros(l),
+        np.zeros(l),
+        np.zeros(l),
+        np.zeros(l),
+        np.zeros(l),
+    )
 
     for i, ybin in enumerate(ybins):
 
@@ -474,14 +578,17 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
             try:
                 k = gaussian_kde(ybinh)
             except:
-                print("Warning! Error in estimating kernel density for data in bin %s! Skipping bin..." % i)
+                print(
+                    "Warning! Error in estimating kernel density for data in bin %s! Skipping bin..."
+                    % i
+                )
                 continue
 
             # support of violins
             if extend is None:
                 m = k.dataset.min()
                 M = k.dataset.max()
-                y = np.arange(m, M, (M - m) / 200.)
+                y = np.arange(m, M, (M - m) / 200.0)
             else:
                 y = np.linspace(qs[0], qs[-1], extend * 100)
 
@@ -492,8 +599,16 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
 
             # violins
             if "v" in draw and "s" not in draw:
-                plt.fill_betweenx(y, xcens[i] - v + offsetX, xcens[i] + offsetX, facecolor=color,
-                                  edgecolor="none", lw=0.5, zorder=0, alpha=0.1)
+                plt.fill_betweenx(
+                    y,
+                    xcens[i] - v + offsetX,
+                    xcens[i] + offsetX,
+                    facecolor=color,
+                    edgecolor="none",
+                    lw=0.5,
+                    zorder=0,
+                    alpha=0.1,
+                )
 
                 # # hack to remove (overdraw) the inner white line that looks ugly
                 # plt.fill_betweenx(y, xcens[i], xcens[i] + v, facecolor="None",
@@ -503,41 +618,82 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
             if "m" in draw:
 
                 # mean uncertainty violin part
-                mask = (y > meds[i] - (meds[i] - qs[1]) / np.sqrt(ns[i])
-                        ) & (y < meds[i] + (qs[2] - meds[i]) / np.sqrt(ns[i]))
-                plt.fill_betweenx(y[mask], xcens[i] - v[mask] + offsetX, xcens[i] + offsetX, facecolor=color, alpha=0.5,
-                                  edgecolor="None", zorder=3)
+                mask = (y > meds[i] - (meds[i] - qs[1]) / np.sqrt(ns[i])) & (
+                    y < meds[i] + (qs[2] - meds[i]) / np.sqrt(ns[i])
+                )
+                plt.fill_betweenx(
+                    y[mask],
+                    xcens[i] - v[mask] + offsetX,
+                    xcens[i] + offsetX,
+                    facecolor=color,
+                    alpha=0.5,
+                    edgecolor="None",
+                    zorder=3,
+                )
 
                 if "v" in draw:  # 1 sigma violin part
                     a = 0.25
                     if "s" in draw:
                         a = 0.15
                     mask = (y > qs[1]) & (y < qs[2])
-                    plt.fill_betweenx(y[mask], xcens[i] - v[mask] + offsetX, xcens[i] + offsetX, facecolor=color,
-                                      edgecolor="none", lw=0.5, zorder=1, alpha=a)
+                    plt.fill_betweenx(
+                        y[mask],
+                        xcens[i] - v[mask] + offsetX,
+                        xcens[i] + offsetX,
+                        facecolor=color,
+                        edgecolor="none",
+                        lw=0.5,
+                        zorder=1,
+                        alpha=a,
+                    )
 
                 # # and to remove inner line again
                 # plt.fill_betweenx(y[mask], xcens[i], xcens[i] + v[mask], facecolor="none",
                 #                   edgecolor="white", lw=4, zorder=1)
 
                 wm = xhws[i] * 0.8 * k.evaluate(meds[i]) / vmax
-                plt.plot((xcens[i] - wm + offsetX, xcens[i] + offsetX), (meds[i], meds[i]), ls="-", lw=1,
-                         color=color, zorder=3)
+                plt.plot(
+                    (xcens[i] - wm + offsetX, xcens[i] + offsetX),
+                    (meds[i], meds[i]),
+                    ls="-",
+                    lw=1,
+                    color=color,
+                    zorder=3,
+                )
 
             if outliers:
 
                 youts = ybinh[(ybinh < qs[0]) | (ybinh > qs[-1])]
                 xouts = np.ones(len(youts)) * xcens[i]
 
-                plt.plot(xouts + offsetX, youts, marker=".",
-                         ls="None", ms=2, color=color, zorder=1)
+                plt.plot(
+                    xouts + offsetX,
+                    youts,
+                    marker=".",
+                    ls="None",
+                    ms=2,
+                    color=color,
+                    zorder=1,
+                )
 
     # Mean profile
     if "a" in draw:
-        zero_mask = (ns > 0)
-        merrbar = plt.errorbar(xcens[zero_mask] + offsetX, means[zero_mask], stds[zero_mask] / np.sqrt(ns[zero_mask]), marker=marker, ls="None",
-                               elinewidth=1, mew=2, mfc="white", mec=color, color=color,
-                               capsize=0, zorder=4, **kwargs)
+        zero_mask = ns > 0
+        merrbar = plt.errorbar(
+            xcens[zero_mask] + offsetX,
+            means[zero_mask],
+            stds[zero_mask] / np.sqrt(ns[zero_mask]),
+            marker=marker,
+            ls="None",
+            elinewidth=1,
+            mew=2,
+            mfc="white",
+            mec=color,
+            color=color,
+            capsize=0,
+            zorder=4,
+            **kwargs,
+        )
         # matplotlib is fucking up the zorder for me if not explicitly told what to do
         for el in merrbar[2]:
             el.set_zorder(1)
@@ -547,8 +703,18 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
 
     if "c" in draw:
         for n, x in zip(ns, xcens + offsetX):
-            plt.annotate(str(n.astype(int)), xy=(x, textpos + offsetY), xycoords=('data', 'data'), rotation=90,
-                         xytext=(0, 0), textcoords='offset points', va='top', ha='center', color=color, size=9)
+            plt.annotate(
+                str(n.astype(int)),
+                xy=(x, textpos + offsetY),
+                xycoords=("data", "data"),
+                rotation=90,
+                xytext=(0, 0),
+                textcoords="offset points",
+                va="top",
+                ha="center",
+                color=color,
+                size=9,
+            )
 
     # to bring all the violins into visible x-range
     plt.xlim(min(xcens - 2 * xhws), max(xcens + 2 * xhws))
@@ -556,8 +722,9 @@ def ViolinPlot(x, y, bins=10, range=None, offsetX=0, offsetY=0,
     return xcens, xhws, means, stds, meds, mads, ns
 
 
-def plot_labeled_vspan(x0, x1, label, y=0.5, axes=None,
-                       color="k", facecolor=None, fontsize=None, zorder=0):
+def plot_labeled_vspan(
+    x0, x1, label, y=0.5, axes=None, color="k", facecolor=None, fontsize=None, zorder=0
+):
     """
     Draw a vspan with a label in the center.
 
@@ -586,12 +753,16 @@ def plot_labeled_vspan(x0, x1, label, y=0.5, axes=None,
     if axes is None:
         axes = plt.gca()
     facecolor = lighten_color(color, 0.75) if facecolor is None else facecolor
-    span = axes.axvspan(x0, x1,
-        facecolor=facecolor,
-        zorder=zorder)
-    text = axes.text(0.5 * (x0 + x1), y, label,
+    span = axes.axvspan(x0, x1, facecolor=facecolor, zorder=zorder)
+    text = axes.text(
+        0.5 * (x0 + x1),
+        y,
+        label,
         transform=axes.get_xaxis_transform(),
-        ha="center", va="center",
-        fontsize=fontsize, rotation=90,
-        zorder=zorder+1)
+        ha="center",
+        va="center",
+        fontsize=fontsize,
+        rotation=90,
+        zorder=zorder + 1,
+    )
     return span, text
