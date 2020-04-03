@@ -1,11 +1,12 @@
 import setuptools
+import pyik
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="pyik",
-    version="0.9",
+    version=pyik.__version__,
     author="Hans Dembinski",
     author_email="hans.dembinski@gmail.com",
     description="PyIK - The Python Instrument Kit",
