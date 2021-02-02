@@ -29,18 +29,26 @@ def lighten_color(color, amount):
 
 
 def plot_stacked(
-    xe, w, labels, colors=None, threshold=0.0, sub_threshold_color="0.8", reverse=True
+    xe,
+    w,
+    labels,
+    colors=None,
+    threshold=0.0,
+    sub_threshold_color="0.8",
+    sort=1,
+    **kwargs,
 ):
     """
     Plot stacked histograms.
 
-    A legend is not automatically drawn by this command. Call pyplot.legend() or figure.legend() to generate it.
+    A legend is not automatically drawn by this command. Call pyplot.legend()
+    or figure.legend() to generate it.
 
     Parameters
     ----------
-    xe: array(N+1)
+    xe: array-like (N+1)
         Bin edges.
-    w: array((M, N))
+    w: array-like with shape (M, N)
         Counts. M is the number of stacked histograms.
     labels: sequences of strings
         Labels for the legend.
@@ -50,9 +58,20 @@ def plot_stacked(
         Fraction below which the stacked histograms are grouped together.
     sub_threshold_color: matplotlib color (default: "0.8")
         Color for the sub-threshold stacks.
-    reverse: boolean (default: True)
-        If true, plot the largest component at the bottom of the stack and work towards smaller and smaller components. If false, start with the smallest component.
+    sort: int (default: 1)
+        If 1, plot the largest component at the bottom of the stack and work
+        towards smaller and smaller components. If -1, start with the smallest
+        component. If 0, don't sort.
+    **kwargs:
+        Other kwargs are forwarded to the underlying plotting routines.
     """
+    if "reverse" in kwargs:
+        reverse = kwargs.get("reverse")
+        sort = 1 if reverse else -1
+        del kwargs["reverse"]
+
+    w = np.asarray(w)
+    assert w.ndim == 2
     n = w.shape[0]
     assert len(labels) == n
     wsum = np.sum(w, axis=1)
@@ -60,13 +79,16 @@ def plot_stacked(
     def transposed(items):
         return map(list, zip(*items))
 
-    wsum, indices = transposed(sorted(zip(wsum, range(n)), reverse=reverse))
+    if sort != 0:
+        wsum, indices = transposed(sorted(zip(wsum, range(n)), reverse=sort > 0))
+        indices = np.array(indices)
+    else:
+        indices = np.arange(len(wsum))
     fractions = wsum / np.sum(wsum)
-    indices = np.array(indices)
     wsum = np.sum(w[indices[fractions < threshold]], axis=0)
     indices = indices[fractions >= threshold]
     n = len(indices)
-    plot_hist(xe, wsum, facecolor=sub_threshold_color, zorder=n)
+    plot_hist(xe, wsum, facecolor=sub_threshold_color, zorder=n, **kwargs)
     for i, j in enumerate(indices):
         wsum += w[j]
         plot_hist(
@@ -76,6 +98,7 @@ def plot_stacked(
             facecolor=f"C{n-1-i}" if colors is None else colors[j],
             zorder=n - 1 - i,
             label=labels[j],
+            **kwargs,
         )
 
 
