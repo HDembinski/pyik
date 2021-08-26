@@ -10,7 +10,7 @@ The tools are grouped by topic into several modules which are listed below. Most
 
 PyIK supports Python2 and Python3. Install it with `pip`.
 ```
-pip install --user pyik
+pip install pyik
 ```
 
 ## Content
