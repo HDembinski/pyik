@@ -13,6 +13,16 @@ PyIK supports Python2 and Python3. Install it with `pip`.
 pip install pyik
 ```
 
+Optional: If you want to use the fitting routines in PyIK, you need libnlopt. Installation instructions are here
+    http://ab-initio.mit.edu/wiki/index.php/NLopt#Download_and_installation
+`pip install nlopt` may also work
+
+## Documentation
+
+PyIK uses the Python self-documentation system. In the Python interpreter, execute "help()", followed by "pyik" or "pyik.numpyext", for example.
+
+Please submit an issue via GitHub if you find issues. Pull requests are also welcome.
+
 ## Content
 
 * *corsika*: Tools to work with CORSIKA files
@@ -28,8 +38,7 @@ pip install pyik
 
 ## Notes
 
-This packages also contains some a directory with working examples
-to copy-paste from.
+The example folder contains working examples to copy-paste from.
 
 ## Authors
 
